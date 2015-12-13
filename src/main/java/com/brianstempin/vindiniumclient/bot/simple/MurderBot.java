@@ -115,6 +115,9 @@ public class MurderBot implements SimpleBot {
     public BotMove move(GameState gameState) {
         logger.info("Starting move");
 
+        ArrayList<Vertex> Gold = new ArrayList<>();
+        Vertex[] gold = new Vertex[1000];
+        
         // Step zero:  Do some path-finding
         List<Vertex> vertexes = doDijkstra(gameState.getGame().getBoard(), gameState.getHero());
 
@@ -133,10 +136,25 @@ public class MurderBot implements SimpleBot {
         }
 
 
+        for(Vertex v : vertexes)
+        {
+        	if (v.getTileType().startsWith("$"))
+        	{
+        		
+        		Gold.add(v);
+        	}
+        }
+        
+        for(Vertex v : Gold)
+        {
+        	
+        }
+        
         // Step one:  Do I need HP?
         if (gameState.getHero().getGold() >= 2 && gameState.getHero().getLife() <= 30) {
             runAwayMode = true;
             Vertex move = getPath(closestPub).get(0);
+            
             logger.info("Getting beer");
             return BotUtils.directionTowards(gameState.getHero().getPos(), move.getPosition());
         }
@@ -148,11 +166,22 @@ public class MurderBot implements SimpleBot {
         } else {
             runAwayMode = false;
         }
+        if(gameState.getHero().getMineCount() >= Gold.size()/2)
+        {
+        	Vertex move = getPath(closestPub).get(0);
+            logger.info("Getting beer");
+            return BotUtils.directionTowards(gameState.getHero().getPos(), move.getPosition());
+        }
+        else
+        {
+        
+        	Vertex move = getPath(Gold.get(0)).get(0);
+            logger.info("Going after player");
+            return BotUtils.directionTowards(gameState.getHero().getPos(), move.getPosition());	
+        }
 
         // Step two:  Shank someone.
-        Vertex move = getPath(closestPlayer).get(0);
-        logger.info("Going after player");
-        return BotUtils.directionTowards(gameState.getHero().getPos(), move.getPosition());
+        
 
     }
 
